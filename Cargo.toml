@@ -1,7 +1,6 @@
-[package]
-name = "rust-tcpserver"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["server", "client"]
+resolver = "2"
 
-[dependencies]
+[workspace.dependencies]
 tokio = { version = "1.53.1", features = ["full"] }
