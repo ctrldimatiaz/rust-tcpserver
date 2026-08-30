@@ -7,8 +7,11 @@ The purpose of the TCP Server is to perform key-value pairs storage while proces
 ## Architecture
 
 `/client` - Here will sit the client responsible for openning connection and sending the requested commands.
+
 `/server` - Here will sit the server responsible for listening in an address, receiving the commands and processing it. 
+
     `/server/network` - Responsible for listening, accepting connections and processing the commands
+
     `/server/storage` - Responsible for data storage. Later we will store in on a JSON. 
 
 
