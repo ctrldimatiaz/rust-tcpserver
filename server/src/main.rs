@@ -14,12 +14,10 @@ async fn main() {
 
         let mut buf = [0; 30];
 
-        let read_result = socket.read(&mut buf).await.unwrap();
+        let _read_result = socket.read(&mut buf).await.unwrap();
 
-        println!("Read result {}", read_result);
+        println!("Read result {}", String::from_utf8(buf.to_vec()).unwrap());
 
-        let write_result = socket.write(&buf).await.unwrap();
-
-        println!("Read result {}", write_result);
+        let _write_result = socket.write(&buf).await.unwrap();
     }
 }
