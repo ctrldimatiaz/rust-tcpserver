@@ -4,3 +4,6 @@ resolver = "2"
 
 [workspace.dependencies]
 tokio = { version = "1.53.1", features = ["full"] }
+log = "0.4.34"
+env_logger = "0.11.11"
+dotenv = "0.15.0"
