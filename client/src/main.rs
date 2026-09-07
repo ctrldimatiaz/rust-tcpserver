@@ -2,7 +2,7 @@ use dotenv::dotenv;
 use env_logger::Env;
 use log::info;
 use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
+    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::TcpStream,
 };
 
@@ -17,17 +17,19 @@ async fn main() {
 
     let mut connector = TcpStream::connect("127.0.0.1:6379").await.unwrap();
 
-    let message = String::from("hello world");
+    let message = String::from("GET test");
 
-    let _result = connector.write(message.as_bytes()).await.unwrap();
+    let _result = connector
+        .write(format!("{message}\n").as_bytes())
+        .await
+        .unwrap();
 
-    let mut buf = [0; 30];
+    let mut reader = BufReader::new(&mut connector);
+    let mut line = String::new();
 
-    let _read_result = connector.read(&mut buf).await.unwrap();
+    // Read a single line
+    reader.read_line(&mut line).await.unwrap();
+    println!("Received: {}", line.trim());
 
-    info!(
-        "Sent {} and got {}",
-        message,
-        String::from_utf8(buf.to_vec()).unwrap(),
-    );
+    info!("Sent {} and got {}", message, line);
 }

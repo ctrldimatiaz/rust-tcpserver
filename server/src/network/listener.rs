@@ -1,4 +1,4 @@
-use log::info;
+use log::{error, info};
 use tokio::net::TcpListener;
 
 use crate::network::handler::ConnectionHandler;
@@ -14,7 +14,11 @@ impl KvListener {
 
             let (socket, _) = listener.accept().await.unwrap();
 
-            ConnectionHandler::handle(socket).await.unwrap();
+            tokio::spawn(async move {
+                if let Err(_e) = ConnectionHandler::handle(socket).await {
+                    error!("Error handling connection");
+                }
+            });
         }
     }
 }

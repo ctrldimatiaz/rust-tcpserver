@@ -12,13 +12,20 @@ impl ConnectionHandler {
         let mut message = String::new();
         let _read_result = buf_reader.read_line(&mut message).await.unwrap();
 
-        let command = parse_command(message.as_str()).inspect_err(|e| {
-            error!("Got error parsing command: {}", e);
-        });
+        let command = parse_command(message.as_str());
 
-        if command.is_err() {
-            socket.write_all(message.as_bytes()).await.unwrap();
-            return Ok(());
+        if let Err(e) = command {
+            let error_message = format!("Got error parsing command: {}", e);
+
+            error!("{error_message}");
+
+            let writeresult = socket.write_all(error_message.as_bytes()).await;
+
+            if let Err(ew) = writeresult {
+                error!("Got error writing back the result: {}", ew);
+                return Err(());
+            }
+            return Err(());
         }
 
         info!("Read result {}", message);
