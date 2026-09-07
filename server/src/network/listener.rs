@@ -1,8 +1,7 @@
 use log::info;
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    net::TcpListener,
-};
+use tokio::net::TcpListener;
+
+use crate::network::handler::ConnectionHandler;
 
 pub struct KvListener {}
 
@@ -13,15 +12,9 @@ impl KvListener {
         loop {
             info!("Accepting incoming connections at localhost:6379");
 
-            let (mut socket, _) = listener.accept().await.unwrap();
+            let (socket, _) = listener.accept().await.unwrap();
 
-            let mut buf = [0; 30];
-
-            let _read_result = socket.read(&mut buf).await.unwrap();
-
-            info!("Read result {}", String::from_utf8(buf.to_vec()).unwrap());
-
-            let _write_result = socket.write(&buf).await.unwrap();
+            ConnectionHandler::handle(socket).await.unwrap();
         }
     }
 }
