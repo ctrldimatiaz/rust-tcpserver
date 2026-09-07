@@ -1,18 +1,31 @@
-use log::info;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use kv_protocol::parse_command;
+use log::{error, info};
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
 
 pub struct ConnectionHandler {}
 
 impl ConnectionHandler {
     pub async fn handle(mut socket: TcpStream) -> Result<(), ()> {
-        let mut buf = [0; 30];
+        let mut buf_reader = BufReader::new(&mut socket);
 
-        let _read_result = socket.read(&mut buf).await.unwrap();
+        let mut message = String::new();
+        let _read_result = buf_reader.read_line(&mut message).await.unwrap();
 
-        info!("Read result {}", String::from_utf8(buf.to_vec()).unwrap());
+        let command = parse_command(message.as_str()).inspect_err(|e| {
+            error!("Got error parsing command: {}", e);
+        });
 
-        let _write_result = socket.write(&buf).await.unwrap();
+        if command.is_err() {
+            socket.write_all(message.as_bytes()).await.unwrap();
+            return Ok(());
+        }
+
+        info!("Read result {}", message);
+        //let response = store.execute(command);
+
+        socket.write_all(message.as_bytes()).await.unwrap();
+
         Ok(())
     }
 }
