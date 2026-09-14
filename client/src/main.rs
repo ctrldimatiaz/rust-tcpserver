@@ -1,3 +1,5 @@
+use std::env;
+
 use dotenv::dotenv;
 use env_logger::Env;
 use log::info;
@@ -15,7 +17,16 @@ async fn main() {
 
     env_logger::init_from_env(env);
 
-    let mut connector = TcpStream::connect("127.0.0.1:6379").await.unwrap();
+    let ip = env::var("IP").unwrap();
+
+    let port: u16 = env::var("PORT")
+        .unwrap()
+        .parse()
+        .expect("PORT must be a valid number");
+
+    let mut connector = TcpStream::connect(format!("{}:{}", ip, port))
+        .await
+        .unwrap();
 
     let message = String::from("GET test");
 

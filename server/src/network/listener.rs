@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 use log::{error, info};
 use tokio::net::TcpListener;
@@ -19,10 +19,17 @@ impl KvListener {
 
     // Startup of key value server. Start listening for incoming messages and handle each one.
     pub async fn boot(&self) {
-        let listener = TcpListener::bind("127.0.0.1:6379").await.unwrap();
+        let ip = env::var("IP").unwrap();
+
+        let port: u16 = env::var("PORT")
+            .unwrap()
+            .parse()
+            .expect("PORT must be a valid number");
+
+        let listener = TcpListener::bind(format!("{}:{}", ip, port)).await.unwrap();
 
         loop {
-            info!("Accepting incoming connections at localhost:6379");
+            info!("Accepting incoming connections at {}:{}", ip, port);
 
             let (socket, _) = listener.accept().await.unwrap();
 
