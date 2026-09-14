@@ -1,23 +1,45 @@
 use std::collections::HashMap;
 
+use kv_protocol::{Command, Response};
+
 pub struct Store {
     data: HashMap<String, String>,
 }
 
 impl Store {
-    pub fn new(data: HashMap<String, String>) -> Store {
-        Self { data }
+    // New store struct responsible for storing the key value pairs
+    pub fn new() -> Store {
+        Self {
+            data: HashMap::new(),
+        }
     }
 
-    pub fn get(&self, key: &str) -> Option<&String> {
-        self.data.get(key)
+    // Get the value of the key parameter
+    fn get(&self, key: &str) -> Response {
+        match self.data.get(key) {
+            Some(v) => Response::Value(v.clone()),
+            None => Response::NotFound,
+        }
     }
 
-    pub fn set(&mut self, key: &str, value: &str) {
+    // Set the value parameter on the key parameter
+    fn set(&mut self, key: &str, value: &str) -> Response {
         self.data.insert(key.to_string(), value.to_string());
+        Response::Ok
     }
 
-    pub fn delete(&mut self, key: &str) {
+    // Delete the stored key parameter
+    fn delete(&mut self, key: &str) -> Response {
         self.data.remove(key);
+        Response::Ok
+    }
+
+    // Facade for processing each command
+    pub fn execute(&mut self, command: Command) -> Response {
+        match command {
+            Command::Get(key) => Store::get(self, &key),
+            Command::Delete(key) => Store::delete(self, &key),
+            Command::Set(key, value) => Store::set(self, &key, &value),
+        }
     }
 }

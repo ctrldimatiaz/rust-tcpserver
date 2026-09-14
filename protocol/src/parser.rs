@@ -1,5 +1,6 @@
 use crate::{Command, ParseError};
 
+// Common command parser function across the protocol.
 pub fn parse_command(input: &str) -> Result<Command, ParseError> {
     let mut fields = input.split_whitespace();
 

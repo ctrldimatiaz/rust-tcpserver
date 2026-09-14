@@ -1,16 +1,33 @@
+use std::sync::Arc;
+
 use kv_protocol::parse_command;
 use log::{error, info};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
+use tokio::sync::Mutex;
 
-pub struct ConnectionHandler {}
+use crate::storage::store::Store;
+
+pub struct ConnectionHandler {
+    store: Arc<Mutex<Store>>,
+}
 
 impl ConnectionHandler {
-    pub async fn handle(mut socket: TcpStream) -> Result<(), ()> {
+    // New handler with shared Store reference
+    pub fn new(store: Arc<Mutex<Store>>) -> Self {
+        Self { store }
+    }
+
+    // Responsible for reading, parsing and processing the incoming command
+    pub async fn handle(&self, mut socket: TcpStream) -> Result<(), ()> {
+        // Read incoming message
+
         let mut buf_reader = BufReader::new(&mut socket);
 
         let mut message = String::new();
         let _read_result = buf_reader.read_line(&mut message).await.unwrap();
+
+        // Parse the command and stop in case of error
 
         let command = parse_command(message.as_str());
 
@@ -29,9 +46,13 @@ impl ConnectionHandler {
         }
 
         info!("Read result {}", message);
-        //let response = store.execute(command);
 
-        socket.write_all(message.as_bytes()).await.unwrap();
+        // Process the command and store it
+        let mut store = self.store.lock().await;
+
+        let response = store.execute(command.unwrap());
+
+        socket.write_all(response.as_bytes()).await.unwrap();
 
         Ok(())
     }

@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use dotenv::dotenv;
 use env_logger::Env;
+use tokio::sync::Mutex;
 
-use crate::network::listener::KvListener;
+use crate::{network::listener::KvListener, storage::store::Store};
 
 pub mod network;
 pub mod storage;
@@ -15,5 +18,9 @@ async fn main() {
 
     env_logger::init_from_env(env);
 
-    KvListener::boot().await;
+    let store = Arc::new(Mutex::new(Store::new()));
+
+    let listener = KvListener::new(store);
+
+    listener.boot().await;
 }
