@@ -31,3 +31,21 @@ You should have the server running before running the client as follows:
 cargo run -p server
 cargo run -p client
 ```
+## Environment variables
+
+`RUST_LOG`<br/>
+`IP`<br/>
+`PORT`
+
+`RUST_LOG` defaults to info.<br/>
+
+Available log levels include:<br/>
+
+error (Level 1)<br/>
+warn (Level 2)<br/>
+info (Level 3)<br/>
+debug (Level 4)<br/>
+trace (Level 5)
+
+`IP` used across server and client packages<br/>
+`PORT` used across server and client packages
