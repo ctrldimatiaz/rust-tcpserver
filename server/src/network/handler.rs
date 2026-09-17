@@ -50,7 +50,7 @@ impl ConnectionHandler {
         // Process the command and store it
         let mut store = self.store.lock().await;
 
-        let response = store.execute(command.unwrap());
+        let response = store.execute(command.unwrap()).await;
 
         socket.write_all(response.as_bytes()).await.unwrap();
 

@@ -18,7 +18,7 @@ async fn main() {
 
     env_logger::init_from_env(env);
 
-    let store = Arc::new(Mutex::new(Store::new()));
+    let store = Arc::new(Mutex::new(Store::new().await));
 
     let listener = KvListener::new(store);
 
